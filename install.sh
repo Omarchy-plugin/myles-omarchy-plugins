@@ -14,6 +14,9 @@ set -uo pipefail
 ORG="https://github.com/Omarchy-plugin"
 PREFIX="${MYLES_PLUGIN_PREFIX:-myles.}"
 
+# This script sits at the repository root, so its own directory is the repo.
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+
 # repo:plugin-id:upstream-builtin-to-disable
 PLUGINS=(
   "myles-clock:myles.clock:omarchy.clock"
@@ -49,8 +52,9 @@ mkdir -p "$STATE_DIR" "$BIN_DIR" || { echo "error: cannot create $STATE_DIR" >&2
 # Keep a copy of the updater and the hook files somewhere stable, then link
 # them onto PATH. A symlink into a possibly-deleted checkout would break the
 # updater on the next shell start.
-cp -f "$(dirname "$(readlink -f "$0")")/../bin/omarchy-myles-plugin-update" "$BIN_DIR/" 2>/dev/null || {
+cp -f "$SCRIPT_DIR/bin/omarchy-myles-plugin-update" "$BIN_DIR/" || {
   echo "error: could not install the updater into $BIN_DIR" >&2
+  echo "       source was $SCRIPT_DIR/bin/omarchy-myles-plugin-update" >&2
   exit 1
 }
 chmod +x "$BIN_DIR/omarchy-myles-plugin-update"
@@ -120,9 +124,9 @@ HOOK
   # A periodic timer is what makes updates feel automatic between reboots and
   # system updates. --user so it needs no root and follows the login session.
   mkdir -p "$HOME/.config/systemd/user"
-  cp -f "$(dirname "$(readlink -f "$0")")/../systemd/myles-plugin-update.service" \
+  cp -f "$SCRIPT_DIR/systemd/myles-plugin-update.service" \
         "$HOME/.config/systemd/user/" 2>/dev/null || true
-  cp -f "$(dirname "$(readlink -f "$0")")/../systemd/myles-plugin-update.timer" \
+  cp -f "$SCRIPT_DIR/systemd/myles-plugin-update.timer" \
         "$HOME/.config/systemd/user/" 2>/dev/null || true
   if command -v systemctl >/dev/null 2>&1; then
     systemctl --user daemon-reload >/dev/null 2>&1 || true
