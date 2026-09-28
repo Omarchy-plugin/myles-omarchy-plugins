@@ -1,0 +1,14 @@
+[Unit]
+Description=Update the Mylesoft Omarchy plugin suite
+Documentation=https://github.com/Omarchy-plugin/myles-omarchy-plugins
+# Network is the point: without it there is nothing to fetch.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/omarchy-myles-plugin-update
+# The updater is best-effort housekeeping. A failure must not be retried in a
+# tight loop or reported as a broken unit, so the exit code is discarded.
+SuccessExitStatus=0 1
+TimeoutStartSec=180

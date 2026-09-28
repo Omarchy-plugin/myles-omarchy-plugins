@@ -1,0 +1,16 @@
+[Unit]
+Description=Periodically update the Mylesoft Omarchy plugin suite
+Documentation=https://github.com/Omarchy-plugin/myles-omarchy-plugins
+
+[Timer]
+# Every 30 minutes, with jitter so a fleet of machines does not hit GitHub's
+# API at the same instant on every tick.
+OnBootSec=5min
+OnUnitActiveSec=30min
+RandomizedDelaySec=5min
+# Catch up after the machine has been asleep or off.
+Persistent=true
+Unit=myles-plugin-update.service
+
+[Install]
+WantedBy=timers.target
